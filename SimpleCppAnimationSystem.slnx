@@ -1,0 +1,7 @@
+<Solution>
+  <Configurations>
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="SimpleCppAnimationSystem.vcxproj" Id="afb12595-d069-4cb3-a662-1c560f8ada07" />
+</Solution>

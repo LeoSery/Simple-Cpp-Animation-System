@@ -1,0 +1,43 @@
+# Compiled Object files
+*.o
+*.obj
+
+# Executables
+*.exe
+*.out
+animation_systems
+animation_systems.exe
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# IDE specific files
+.vscode/
+.vs/
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
+
+# Build directories
+build/
+bin/
+obj/
+x64/
+Debug/
+Release/
+
+# Debug files
+*.pdb
+*.ilk
+*.idb
+
+# OS specific
+.DS_Store
+Thumbs.db
