@@ -2,13 +2,16 @@
 
 #include <vector>
 #include <string>
+#include <iostream>
 
 struct Matrix4x4
 {
     float data[16];
 
     Matrix4x4();
+    static Matrix4x4 RotationZ(float angleRadians);
     Matrix4x4 operator*(const Matrix4x4& other) const;
+    void Print();
 };
 
 class Skeleton
@@ -19,6 +22,7 @@ public:
     void UpdateWorldTransforms();
     Matrix4x4 GetWorldTransform(int boneIndex);
     void SetLocalTransform(int boneIndex, const Matrix4x4& newTransform);
+    void ShowBonesTransform();
 
 private:
     std::vector<std::string> bonesName;

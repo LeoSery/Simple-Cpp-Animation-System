@@ -13,14 +13,44 @@ Matrix4x4::Matrix4x4()
     data[15] = 1;
 }
 
+Matrix4x4 Matrix4x4::RotationZ(float angleRadians)
+{
+    return Matrix4x4();
+}
+
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const
 {
     Matrix4x4 result;
-    for (int i = 0; i < 16; i++)
+
+    for (int row = 0; row < 4; row++)
     {
-        result.data[i] = this->data[i] + other.data[i];
+        for (int col = 0; col < 4; col++)
+        {
+            float sum = 0.0f;
+
+            for (int k = 0; k < 4; k++)
+            {
+                sum += this->data[row * 4 + k] * other.data[k * 4 + col];
+            }
+
+            result.data[row * 4 + col] = sum;
+        }
     }
+
     return result;
+}
+
+void Matrix4x4::Print()
+{
+    for (int row = 0; row < 4; row++)
+    {
+        for (int col = 0; col < 4; col++)
+        {
+            printf("%8.3f ", data[row * 4 + col]);
+        }
+        printf("\n");
+    }
+    printf("\n");
 }
 
 int Skeleton::AddBone(const std::string& name, int parentIndex, const Matrix4x4& localTransform)
@@ -85,4 +115,23 @@ void Skeleton::SetLocalTransform(int boneIndex, const Matrix4x4& newTransform)
     }
 
     bonesLocalTransform[boneIndex] = newTransform;
+}
+
+void Skeleton::ShowBonesTransform()
+{
+    if (bonesName.empty())
+    {
+        return;
+    }
+
+    std::cout << "Bones transform :" << std::endl;
+
+    for (int i = 0; i < bonesName.size(); i++)
+    {
+        std::cout << bonesName[i] << std::endl;
+        std::cout << "[" << std::endl;
+        bonesWorldTransform[i].Print();
+        std::cout << "]" << std::endl;
+        std::cout << std::endl;
+    }
 }
