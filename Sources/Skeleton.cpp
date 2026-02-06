@@ -15,7 +15,14 @@ Matrix4x4::Matrix4x4()
 
 Matrix4x4 Matrix4x4::RotationZ(float angleRadians)
 {
-    return Matrix4x4();
+    Matrix4x4 result = Matrix4x4();
+
+    result.data[0] = std::cos(angleRadians);
+    result.data[1] = -(std::sin(angleRadians));
+    result.data[4] = std::sin(angleRadians);
+    result.data[5] = std::cos(angleRadians);
+
+    return result;
 }
 
 Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const

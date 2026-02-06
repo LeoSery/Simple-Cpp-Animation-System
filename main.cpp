@@ -87,45 +87,75 @@ void TestSkeleton()
 
     Skeleton skeleton;
 
-    // Create hierarchy
+    // Create hierarchy: Root -> Spine -> Shoulder -> Elbow -> Hand
     int root = skeleton.AddBone("Root", -1, Matrix4x4());
     int spine = skeleton.AddBone("Spine", root, Matrix4x4());
     int shoulder = skeleton.AddBone("Shoulder", spine, Matrix4x4());
     int elbow = skeleton.AddBone("Elbow", shoulder, Matrix4x4());
-    int head = skeleton.AddBone("Head", shoulder, Matrix4x4());
+    int hand = skeleton.AddBone("Hand", elbow, Matrix4x4());
 
     // Test FindBone
     assert(skeleton.FindBone("Root") == 0);
     assert(skeleton.FindBone("Spine") == 1);
     assert(skeleton.FindBone("Shoulder") == 2);
     assert(skeleton.FindBone("Elbow") == 3);
-    assert(skeleton.FindBone("Head") == 4);
+    assert(skeleton.FindBone("Hand") == 4);
+    assert(skeleton.FindBone("NonExistent") == -1);
     std::cout << "FindBone tests passed!" << std::endl;
 
-    // Test transform propagation
+    // Test initial state (all identity)
     skeleton.UpdateWorldTransforms();
-    std::cout << "UpdateWorldTransforms executed!" << std::endl;
+    Matrix4x4 initialShoulder = skeleton.GetWorldTransform(shoulder);
+    assert(initialShoulder.data[0] == 1.0f && initialShoulder.data[5] == 1.0f);
+    std::cout << "Initial state test passed!" << std::endl;
 
-    Matrix4x4 rootWorld = skeleton.GetWorldTransform(0);
-    Matrix4x4 spineWorld = skeleton.GetWorldTransform(1);
-    std::cout << "GetWorldTransform tests passed!" << std::endl;
-
-    // Test dynamic modification
-    Matrix4x4 spineTransform;
-    spineTransform.data[0] = 2.0f;
-    skeleton.SetLocalTransform(spine, spineTransform);
+    // Test rotation propagation - 45 degrees
+    Matrix4x4 rotation45 = Matrix4x4::RotationZ(3.14159f / 4.0f);
+    skeleton.SetLocalTransform(shoulder, rotation45);
     skeleton.UpdateWorldTransforms();
 
-    Matrix4x4 shoulderWorldAfter = skeleton.GetWorldTransform(shoulder);
-    Matrix4x4 elbowWorldAfter = skeleton.GetWorldTransform(elbow);
-    Matrix4x4 headWorldAfter = skeleton.GetWorldTransform(head);
+    Matrix4x4 shoulderWorld = skeleton.GetWorldTransform(shoulder);
+    Matrix4x4 elbowWorld = skeleton.GetWorldTransform(elbow);
+    Matrix4x4 handWorld = skeleton.GetWorldTransform(hand);
 
-    assert(shoulderWorldAfter.data[0] >= 2.0f);
-    assert(elbowWorldAfter.data[0] >= 2.0f);
-    assert(headWorldAfter.data[0] >= 2.0f);
-    std::cout << "Propagation test passed!" << std::endl;
+    // Verify cos(45) and sin(45) are approximately 0.707
+    float cos45 = shoulderWorld.data[0];
+    float sin45 = shoulderWorld.data[4];
+    assert(cos45 > 0.706f && cos45 < 0.708f);
+    assert(sin45 > 0.706f && sin45 < 0.708f);
 
-    std::cout << "All Skeleton tests passed!" << std::endl;
+    // Verify propagation: children should have same rotation
+    assert(elbowWorld.data[0] == shoulderWorld.data[0]);
+    assert(handWorld.data[0] == shoulderWorld.data[0]);
+    std::cout << "45-degree rotation test passed!" << std::endl;
+
+    // Test rotation 90 degrees
+    Matrix4x4 rotation90 = Matrix4x4::RotationZ(3.14159f / 2.0f);
+    skeleton.SetLocalTransform(shoulder, rotation90);
+    skeleton.UpdateWorldTransforms();
+
+    Matrix4x4 shoulderWorld90 = skeleton.GetWorldTransform(shoulder);
+    assert(shoulderWorld90.data[0] < 0.001f && shoulderWorld90.data[0] > -0.001f); // cos(90) ~ 0
+    assert(shoulderWorld90.data[4] > 0.999f && shoulderWorld90.data[4] < 1.001f); // sin(90) ~ 1
+    std::cout << "90-degree rotation test passed!" << std::endl;
+
+    // Test negative rotation -45 degrees
+    Matrix4x4 rotationNeg45 = Matrix4x4::RotationZ(-3.14159f / 4.0f);
+    skeleton.SetLocalTransform(shoulder, rotationNeg45);
+    skeleton.UpdateWorldTransforms();
+
+    Matrix4x4 shoulderWorldNeg = skeleton.GetWorldTransform(shoulder);
+    assert(shoulderWorldNeg.data[4] < -0.706f && shoulderWorldNeg.data[4] > -0.708f); // sin(-45) ~ -0.707
+    std::cout << "Negative rotation test passed!" << std::endl;
+
+    // Verify Root and Spine are unaffected
+    Matrix4x4 rootWorld = skeleton.GetWorldTransform(root);
+    Matrix4x4 spineWorld = skeleton.GetWorldTransform(spine);
+    assert(rootWorld.data[0] == 1.0f && rootWorld.data[5] == 1.0f);
+    assert(spineWorld.data[0] == 1.0f && spineWorld.data[5] == 1.0f);
+    std::cout << "Parent isolation test passed!" << std::endl;
+
+    std::cout << "\n=== ALL SKELETON TESTS PASSED ===" << std::endl;
 }
 
 void TestAnimationBlending()
@@ -206,7 +236,7 @@ void TestAnimationBlending()
     std::cout << "All Animation Blending tests passed!" << std::endl;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
     std::cout << "=====================================" << std::endl;
     std::cout << "  ANIMATION SYSTEMS TEST SUITE" << std::endl;
