@@ -1,19 +1,10 @@
 #pragma once
 
+#include "MathsUtils.h"
+
 #include <vector>
 #include <string>
 #include <iostream>
-#include <cmath>
-
-struct Matrix4x4
-{
-    float data[16];
-
-    Matrix4x4();
-    static Matrix4x4 RotationZ(float angleRadians);
-    Matrix4x4 operator*(const Matrix4x4& other) const;
-    void Print();
-};
 
 class Skeleton
 {

@@ -4,27 +4,38 @@ Exploring core animation programming concepts in C++ by implementing basic syste
 
 ## Systems Implemented
 
-This repository contains simple implementations of:
+This repository contains implementations of:
 
 - **State Machine**: Manages character animation states (Idle, Walk, Run, Jump) with conditional transitions
 - **Blend Tree 1D**: Blends animations based on a parameter (e.g., movement speed)
-- **Skeleton Hierarchy**: Hierarchical bone structure with transform propagation
+- **Skeleton Hierarchy**: Hierarchical bone structure with transform propagation using Data-Oriented Design (SOA layout)
 - **Pose Blending**: Blends multiple animation poses with weight normalization
+- **Two-Bone IK Solver**: Inverse Kinematics solver using the law of cosines for analytical solutions
 
 ## Project Structure
-
 ```
-cpp-animation-systems/
-├── src/
-│   ├── main.cpp                    # Test runner
-│   ├── StateMachine.h/.cpp         # State machine implementation
-│   ├── BlendTree1D.h/.cpp          # Blend tree implementation
-│   ├── Skeleton.h/.cpp             # Skeleton hierarchy
-│   └── AnimationBlending.h/.cpp    # Pose blending system
+Simple-Cpp-Animation-System/
+├── Headers/
+│   ├── StateMachine.h
+│   ├── BlendTree1D.h
+│   ├── Skeleton.h
+│   ├── AnimationBlending.h
+│   └── IKSolver.h
+├── Sources/
+│   ├── StateMachine.cpp
+│   ├── BlendTree1D.cpp
+│   ├── Skeleton.cpp
+│   ├── AnimationBlending.cpp
+│   └── IKSolver.cpp
+├── main.cpp
 └── README.md
 ```
 
+## Technical Highlights
+
+- **Data-Oriented Design**: Skeleton system uses Structure of Arrays (SOA) for cache-friendly bone transforms
+- **Mathematical Foundations**: Custom Vector3, Quaternion, Matrix4x4, and Transform implementations
+
 ## Notes
 
-This is an educational project focused on understanding animation system fundamentals. Implementations are simplified for learning purposes.
-Math utilities (Vector3, Quaternion, Transform) are provided helpers to focus on core animation concepts.
+This is an educational project focused on understanding animation system fundamentals from scratch. All math utilities and animation algorithms are implemented manually to deepen understanding of the underlying concepts.

@@ -1,52 +1,5 @@
 #include "../Headers/Skeleton.h"
 
-Matrix4x4::Matrix4x4()
-{
-    for (int i = 0; i < 16; i++)
-    {
-        data[i] = 0;
-    }
-
-    data[0] = 1;
-    data[5] = 1;
-    data[10] = 1;
-    data[15] = 1;
-}
-
-Matrix4x4 Matrix4x4::RotationZ(float angleRadians)
-{
-    Matrix4x4 result = Matrix4x4();
-
-    result.data[0] = std::cos(angleRadians);
-    result.data[1] = -(std::sin(angleRadians));
-    result.data[4] = std::sin(angleRadians);
-    result.data[5] = std::cos(angleRadians);
-
-    return result;
-}
-
-Matrix4x4 Matrix4x4::operator*(const Matrix4x4& other) const
-{
-    Matrix4x4 result;
-
-    for (int row = 0; row < 4; row++)
-    {
-        for (int col = 0; col < 4; col++)
-        {
-            float sum = 0.0f;
-
-            for (int k = 0; k < 4; k++)
-            {
-                sum += this->data[row * 4 + k] * other.data[k * 4 + col];
-            }
-
-            result.data[row * 4 + col] = sum;
-        }
-    }
-
-    return result;
-}
-
 void Matrix4x4::Print()
 {
     for (int row = 0; row < 4; row++)

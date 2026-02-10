@@ -2,11 +2,13 @@
 #include "Headers/BlendTree1D.h"
 #include "Headers/Skeleton.h"
 #include "Headers/AnimationBlending.h"
+#include "Headers/IKSolver.h"
 
 #include <iostream>
 #include <cassert>
 #include <cmath>
 
+#pragma region Tests
 void TestStateMachine()
 {
     std::cout << "\n=== STATE MACHINE TESTS ===" << std::endl;
@@ -164,29 +166,29 @@ void TestAnimationBlending()
 
     // Test lerp functions
     std::cout << "\nTest 1: Lerp float" << std::endl;
-    assert(lerp(0.0f, 10.0f, 0.0f) == 0.0f);
-    assert(lerp(0.0f, 10.0f, 0.5f) == 5.0f);
-    assert(lerp(0.0f, 10.0f, 1.0f) == 10.0f);
+    assert(Lerp(0.0f, 10.0f, 0.0f) == 0.0f);
+    assert(Lerp(0.0f, 10.0f, 0.5f) == 5.0f);
+    assert(Lerp(0.0f, 10.0f, 1.0f) == 10.0f);
     std::cout << "  PASSED" << std::endl;
 
     std::cout << "\nTest 2: Lerp Vector3" << std::endl;
     Vector3 v1(0, 0, 0);
     Vector3 v2(10, 20, 30);
-    Vector3 vResult = lerp(v1, v2, 0.5f);
+    Vector3 vResult = Lerp(v1, v2, 0.5f);
     assert(vResult.x == 5.0f && vResult.y == 10.0f && vResult.z == 15.0f);
     std::cout << "  PASSED" << std::endl;
 
     std::cout << "\nTest 3: Lerp Quaternion" << std::endl;
     Quaternion q1(0, 0, 0, 1);
     Quaternion q2(0, 1, 0, 0);
-    Quaternion qResult = lerp(q1, q2, 0.5f);
+    Quaternion qResult = Lerp(q1, q2, 0.5f);
     assert(qResult.x == 0.0f && qResult.y == 0.5f && qResult.z == 0.0f && qResult.w == 0.5f);
     std::cout << "  PASSED" << std::endl;
 
     std::cout << "\nTest 4: Lerp Transform" << std::endl;
     Transform t1(Vector3(0, 0, 0), Quaternion(0, 0, 0, 1), Vector3(1, 1, 1));
     Transform t2(Vector3(10, 20, 30), Quaternion(0, 1, 0, 0), Vector3(2, 2, 2));
-    Transform tResult = lerp(t1, t2, 0.5f);
+    Transform tResult = Lerp(t1, t2, 0.5f);
     assert(tResult.position.x == 5.0f && tResult.position.y == 10.0f);
     assert(tResult.scale.x == 1.5f);
     std::cout << "  PASSED" << std::endl;
@@ -236,6 +238,107 @@ void TestAnimationBlending()
     std::cout << "All Animation Blending tests passed!" << std::endl;
 }
 
+void TestIKSolver()
+{
+    std::cout << "\n=== IK SOLVER TESTS ===" << std::endl;
+
+    IKChain armChain;
+    armChain.upperLength = 0.3f;
+    armChain.lowerLength = 0.25f;
+
+    // ============================================
+    // Test 1: Normal case (reachable)
+    // ============================================
+    std::cout << "\nTest 1: Normal reachable case" << std::endl;
+    Vector3 start1(0.0f, 0.0f, 0.0f);
+    Vector3 target1(0.4f, 0.3f, 0.0f);
+
+    IKResult result1 = SolveTwoBoneIK(start1, target1, armChain);
+
+    assert(result1.isReachable == true);
+    assert(result1.shoulderAngle >= -3.14f && result1.shoulderAngle <= 3.14f);
+    assert(result1.elbowAngle >= -3.14f && result1.elbowAngle <= 3.14f);
+    std::cout << "  Reachable: " << (result1.isReachable ? "YES" : "NO") << std::endl;
+    std::cout << "  Shoulder angle: " << result1.shoulderAngle << " rad" << std::endl;
+    std::cout << "  Elbow angle: " << result1.elbowAngle << " rad" << std::endl;
+    std::cout << "  PASSED" << std::endl;
+
+    // ============================================
+    // Test 2: Out of range (too far away)
+    // ============================================
+    std::cout << "\nTest 2: Out of reach (too far)" << std::endl;
+    Vector3 start2(0.0f, 0.0f, 0.0f);
+    Vector3 target2(1.0f, 0.0f, 0.0f);
+
+    IKResult result2 = SolveTwoBoneIK(start2, target2, armChain);
+
+    assert(result2.isReachable == false);
+    std::cout << "  Reachable: " << (result2.isReachable ? "YES" : "NO") << std::endl;
+    std::cout << "  Distance: 1.0 > maxReach (0.55)" << std::endl;
+    std::cout << "  PASSED" << std::endl;
+
+    // ============================================
+    // Test 3: Too close
+    // ============================================
+    std::cout << "\nTest 3: Too close" << std::endl;
+    Vector3 start3(0.0f, 0.0f, 0.0f);
+    Vector3 target3(0.02f, 0.0f, 0.0f);
+
+    IKResult result3 = SolveTwoBoneIK(start3, target3, armChain);
+
+    assert(result3.isReachable == false);
+    std::cout << "  Reachable: " << (result3.isReachable ? "YES" : "NO") << std::endl;
+    std::cout << "  Distance: 0.02 < minReach (0.05)" << std::endl;
+    std::cout << "  PASSED" << std::endl;
+
+    // ============================================
+    // Test 4: Distance = 0 (edge case)
+    // ============================================
+    std::cout << "\nTest 4: Distance zero (start == target)" << std::endl;
+    Vector3 start4(0.0f, 0.0f, 0.0f);
+    Vector3 target4(0.0f, 0.0f, 0.0f);
+
+    IKResult result4 = SolveTwoBoneIK(start4, target4, armChain);
+
+    assert(result4.isReachable == false);
+    std::cout << "  Reachable: " << (result4.isReachable ? "YES" : "NO") << std::endl;
+    std::cout << "  Distance: 0.0 (undefined direction)" << std::endl;
+    std::cout << "  PASSED" << std::endl;
+
+    // ============================================
+    // Test 5: Just at the limit
+    // ============================================
+    std::cout << "\nTest 5: Exactly at max reach" << std::endl;
+    Vector3 start5(0.0f, 0.0f, 0.0f);
+    Vector3 target5(0.55f, 0.0f, 0.0f);
+
+    IKResult result5 = SolveTwoBoneIK(start5, target5, armChain);
+
+    assert(result5.isReachable == true);
+    // Arm fully extended => elbow angle should be close to 180 degrees (PI radians)
+    assert(std::abs(result5.elbowAngle - 3.14159f) < 0.1f); // ~180 degres
+    std::cout << "  Reachable: " << (result5.isReachable ? "YES" : "NO") << std::endl;
+    std::cout << "  Elbow angle: " << result5.elbowAngle << " rad (~PI = straight arm)" << std::endl;
+    std::cout << "  PASSED" << std::endl;
+
+    // ============================================
+    // Test 6: 3D Case (bonus)
+    // ============================================
+    std::cout << "\nTest 6: 3D case (bonus)" << std::endl;
+    Vector3 start6(0.0f, 0.0f, 0.0f);
+    Vector3 target6(0.2f, 0.3f, 0.2f);  // distance ~0.412
+
+    IKResult result6 = SolveTwoBoneIK(start6, target6, armChain);
+
+    assert(result6.isReachable == true);
+    std::cout << "  Reachable: " << (result6.isReachable ? "YES" : "NO") << std::endl;
+    std::cout << "  3D target reached successfully" << std::endl;
+    std::cout << "  PASSED" << std::endl;
+
+    std::cout << "\n=== ALL IK SOLVER TESTS PASSED ===" << std::endl;
+}
+#pragma endregion
+
 int main(int argc, char *argv[])
 {
     std::cout << "=====================================" << std::endl;
@@ -246,6 +349,7 @@ int main(int argc, char *argv[])
     TestBlendTree1D();
     TestSkeleton();
     TestAnimationBlending();
+    TestIKSolver();
 
     std::cout << "\n=====================================" << std::endl;
     std::cout << "  ALL TESTS PASSED SUCCESSFULLY" << std::endl;
