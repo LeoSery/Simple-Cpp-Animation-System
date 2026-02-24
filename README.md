@@ -39,3 +39,25 @@ Simple-Cpp-Animation-System/
 ## Notes
 
 This is an educational project focused on understanding animation system fundamentals from scratch. All math utilities and animation algorithms are implemented manually to deepen understanding of the underlying concepts.
+
+## Ressources
+
+### Motion Matching
+- [GDC 2016 - Simon Clavet "Motion Matching and The Road to Next-Gen Animation"](https://www.gdcvault.com/play/1023280/Motion-Matching-and-The-Road)
+- [Game Anim - Motion Matching & For Honor](https://www.gameanim.com/2016/05/03/motion-matching-ubisofts-honor/)
+- [Ubisoft Montreal Blog - Motion Matching](https://montreal.ubisoft.com/en/tag/motionmatching/)
+
+### Learned Motion Matching
+- [Ubisoft La Forge - Introducing Learned Motion Matching](https://www.ubisoft.com/en-us/studio/laforge/news/6xXL85Q3bF2vEj76xmnmIu/introducing-learned-motion-matching)
+- [Ubisoft La Forge - Learned Motion Matching (article complet)](https://www.ubisoft.com/en-us/studio/laforge/news/3NWqwcMU9lMfumgfPAEfka/learned-motion-matching)
+
+### Animation Compression
+- [Nicholas Frechette Blog - Animation Compression (ACL author)](https://nfrechette.github.io/2016/10/21/anim_compression_toc/)
+
+### Skinning
+- [Gabor Makes Games - Skinning](https://gabormakesgames.com/blog_animation_skinspace.html)
+- [WebGL Fundamentals - Skinning](https://webglfundamentals.org/webgl/lessons/webgl-skinning.html)
+
+### State of the Art (2024-2025)
+- [GDC 2024 - Tencent MotorNerve Animation System](https://gdcvault.com/play/1034825/MotorNerve-A-Character-Animation-System)
+- [Ubisoft LaFAN1 Dataset (GitHub)](https://github.com/ubisoft/ubisoft-laforge-animation-dataset)
